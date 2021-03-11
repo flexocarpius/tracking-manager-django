@@ -1,0 +1,79 @@
+{% extends 'shared/index.html' %}
+{% block title %}
+    {% if role %}
+    Edit user
+    {% else %}
+    Create new user
+    {% endif %}
+{% endblock %}
+{% block content %}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            {% if role %}
+            Edit user
+            {% else %}
+            Create user
+            {% endif %}
+        </h1>
+    </div>
+    {% if errors %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card bg-danger text-white shadow">
+                <div class="card-body">
+                    <h3>Errors</h3>
+                    <div class="text-white-50 small">
+                        <ul>
+                            {% for e in errors %}
+                            <li>{{ e }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="row">
+        <div class="col-12">
+            <form action="{% url 'users_register' %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Username"
+                        value="{% if role %}{{ role.user.username }}{% endif %}">
+                </div>
+                <div class="form-group">
+                    <label for="email">User email</label>
+                    <input type="text" class="form-control" id="email" name="email" placeholder="Email"
+                        value="{% if role %}{{ role.user.email }}{% endif %}">
+                </div>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select class="form-control" id="role" name="role">
+                        <option {% if role.role == 'Admin' %}selected{% endif %}>Admin</option>
+                        <option {% if role.role == 'Operator' %}selected{% endif %}>Operator</option>
+                        <option {% if role.role == 'Customer' %}selected{% endif %}>Customer</option>
+                    </select>
+                </div>
+                {% if not role %}
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Secured">
+                </div>
+                <div class="form-group">
+                    <label for="passwordRepeat">Repeat password</label>
+                    <input type="password" class="form-control" id="passwordRepeat" name="passwordRepeat" placeholder="Secured">
+                </div>
+                {% else %}
+                <input type="hidden" name="user_id" value="{{ role.user.id }}" />
+                {% endif %}
+                {% if role %}
+                <input type="submit" class="btn btn-info" value="Save">
+                {% else %}
+                <input type="submit" class="btn btn-success" value="Create">
+                {% endif %}
+            </form>
+        </div>
+    </div>
+{% endblock %}

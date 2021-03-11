@@ -1,0 +1,15 @@
+{% extends 'shared/index.html' %}
+{% block title %}Congratulations{% endblock %}
+{% block content %}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Congratulations!</h1>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <h3>Your order has been placed and it is being prepared for shipping. You can review the status of your order by clicking here.</h3>
+            <a href="{% url 'orders_details' order.id %}" class="btn btn-success btn-lg">
+                Check status
+            </a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'shared/index.html' %}
+{% load app_filters %}
+{% block title %}Create order{% endblock %}
+{% block content %}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Create an order</h1>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <form action="{% url 'orders_place' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" id="order_id" name="order_id" value="{{ order.id }}">
+                <div class="form-group">
+                    <label for="code">Assigned code</label>
+                    <input type="text" class="form-control" id="code" name="code" placeholder="Code" value="{{ order.code }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="shipping_address">Shipping address</label>
+                    <textarea class="form-control" id="shipping_address" name="shipping_address" placeholder="Address st. 1200">{{ order.shipping_address }}</textarea>
+                </div>
+                <h3>Products in cart</h3>
+                <div class="row">
+                    <div class="col-lg-8 col-sm-12">
+                        <div class="card mb-4">
+                            <div class="card-body d-flex flex-column">
+                                {% for p in products %}
+                                <div class="d-flex flex-row align-items-center mb-4">
+                                    <img src="{{ p.small_img }}" class="shopping-cart-img rounded" alt="">
+                                    <div class="d-flex flex-column ml-2">
+                                        <h4 class="mb-0">{{ p.name }}</h4>
+                                        <p class="mb-0">{{ p.to_buy }} x ${{ p.price }}</p>
+                                    </div>
+                                    <div class="flex-grow-1"></div>
+                                    <h5 class="mb-0 mr-2"><b>${{ p.subtotal }}</b></h5>
+                                    <button type="button" class="btn btn-circle btn-info btn-delete" data-order-id="{{ order.id }}" data-product-id="{{ p.id }}"><i class="fa fa-trash"></i></button>
+                                </div>
+                                {% empty %}
+                                <h4>No products for now.</h4>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-sm-12">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h3>Summary</h3>
+                                <div class="d-flex flex-column">
+                                    {% for p in products %}
+                                    <div class="d-flex flex-row mb-2">
+                                        <span>{{ p.to_buy }} x ${{ p.price }}</span>
+                                        <span class="flex-grow-1"></span>
+                                        <span>${{ p.subtotal }}</span>
+                                    </div>
+                                    {% empty %}
+                                    <h5>No products for now.</h5>
+                                    {% endfor %}
+                                </div>
+                                <h4 class="mb-4">Total: <b>${{ total|floatformat:2 }}</b></h4>
+                                <input type="submit" href="" class="btn btn-success" value="Place order">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script>
+    $('.btn-delete').on('click', async (element) => {
+        const data = $(element.currentTarget).data();
+        const response = await postJson("{% url 'orders_remove_product' %}", { orderId: data.orderId, productId: data.productId });
+        window.location.href = "{% url 'orders_create' %}"
+    });
+</script>
+{% endblock %}

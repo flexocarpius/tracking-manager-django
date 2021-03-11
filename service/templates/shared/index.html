@@ -1,0 +1,285 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>{% block title %}{% endblock %}</title>
+
+    <!-- Custom fonts for this template-->
+    <link
+      href="{% static 'vendor/fontawesome-free/css/all.min.css' %}"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"></link>
+
+    <!-- Custom styles for this template-->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" />
+    <style>
+      .shopping-cart-img {
+          object-fit: contain; /* Do not scale the image */
+          object-position: center; /* Center the image within the element */
+          max-width: 50px;
+          max-height: 50px;
+          height: 50px;
+      }
+    </style>
+  </head>
+
+  <body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        {% include "shared/sidebar.html" %}
+      <!-- Content Wrapper -->
+      <div id="content-wrapper" class="d-flex flex-column">
+        <!-- Main Content -->
+        <div id="content">
+          <!-- Topbar -->
+          <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow d-flex justify-content-between">
+            <!-- Sidebar Toggle (Topbar) -->
+            <button id="sidebarToggleTop" class="btn btn-link d-lg-none rounded-circle mr-3">
+              <i class="fa fa-bars"></i>
+            </button>
+            <div class="flex-grow-1"></div>
+            <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 navbar-search">
+              <div class="input-group">
+                  <input id="autocomplete" type="text" class="form-control bg-light border-0 small" placeholder="Search" aria-label="Search" aria-describedby="basic-addon2" autocomplete="off">
+                  <div class="input-group-append">
+                      <button class="btn btn-primary" type="button">
+                          <i class="fas fa-search fa-sm"></i>
+                      </button>
+                  </div>
+              </div>
+            </form>
+            <div class="flex-grow-1"></div>
+            <!-- Topbar Navbar -->
+            <ul class="navbar-nav ml-auto">
+              {% if user.is_authenticated %}
+              <li class="nav-item dropdown no-arrow mx-1">
+                <a class="nav-link dropdown-toggle" href="#" id="cartDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-shopping-cart fa-fw"></i>
+                    <!-- Counter -->
+                    <span class="badge badge-danger badge-counter shopping-cart-total"></span>
+                </a>
+                <!-- Dropdown -->
+                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="cartDropdown">
+                    <h6 class="dropdown-header">
+                        Shopping cart
+                    </h6>
+                    <div id="cartDropdownContent"></div>
+                    <a class="dropdown-item text-center text-gray-500" href="{% url 'orders_create' %}">Checkout</a>
+                  </div>
+              </li>
+              <!-- Nav Item - User Information -->
+              <li class="nav-item dropdown no-arrow">
+                <a
+                  class="nav-link dropdown-toggle"
+                  href="#"
+                  id="userDropdown"
+                  role="button"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ user.username|capfirst }}</span>
+                  <i class="fas d-sm-inline d-lg-none fa-user fa-fw"></i>
+                </a>
+                <!-- Dropdown - User Information -->
+                <div
+                  class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                  aria-labelledby="userDropdown"
+                >
+                  <a
+                    class="dropdown-item"
+                    href="{% url 'account_logout' %}"
+                  >
+                    <i
+                      class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"
+                    ></i>
+                    Logout
+                  </a>
+                </div>
+              </li>
+              {% else %}
+              <li class="nav-item">
+                  <a href="{% url 'account_login' %}" class="nav-link">Login</a>
+              </li>
+              {% endif %}
+            </ul>
+          </nav>
+          <!-- End of Topbar -->
+
+          <!-- Begin Page Content -->
+          <div class="container-fluid">
+            {% block content %}{% endblock %}
+          </div>
+          <!-- /.container-fluid -->
+        </div>
+        <!-- End of Main Content -->
+
+        <!-- Footer -->
+        <footer class="sticky-footer bg-white">
+          <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+              <span>Copyright &copy; Tracking Manager 2020</span>
+            </div>
+          </div>
+        </footer>
+        <!-- End of Footer -->
+      </div>
+      <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
+
+    <!-- Autocomplete -->
+    <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@master/dist/latest/bootstrap-autocomplete.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+
+    <script>
+      function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+      }
+      
+      // Obtain products information
+      const getProductsInfo = async () => {
+        let csrftoken = getCookie('csrftoken');
+        const response = await getJson("{% url 'orders_get_products' %}");
+
+        if (response.message !== 'ok') {
+          return;
+        }
+
+        for (product of response.data.products) {
+          $('#cartDropdownContent').append(`
+            <a class="dropdown-item d-flex align-items-center" href="#">
+              <div class="mr-3">
+                <img src="${product.small_img}" alt="" class="rounded-circle shopping-cart-img">
+              </div>
+              <div>
+                <div class="font-weight-bold">
+                  <div class="text-truncate">${product.name}</div>
+                  <div class="small text-gray-500">${product.to_buy} x $ ${product.price}</div>
+                </div>
+              </div>
+            </a>
+          `)
+        }
+
+        if (response.data.products.length > 0) {
+          $('.shopping-cart-total').text(response.data.products.length);
+          $('#checkout-operation').removeClass('d-none');
+        }
+      }
+
+      $(document).ready(() => getProductsInfo())
+
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      });
+
+      const sendData = async (url, method, data=undefined) => {
+        let csrftoken = getCookie('csrftoken');
+        const response = await fetch(url, {
+            method: method,
+            mode: 'cors',
+            body: data && JSON.stringify(data),
+            credentials: 'same-origin',
+            headers: { "X-CSRFToken": csrftoken },
+        });
+        const json = await response.json();
+        return json;
+      }
+
+      const postJson = async (url, data) => {
+        return await sendData(url, 'POST', data);
+      }
+
+      const getJson = async (url, data) => {
+        return await sendData(url, 'GET', data);
+      }
+
+      $(document).on('click', '#sidebarToggle', () => {
+        localStorage.setItem('sidebar', $('#accordionSidebar').hasClass('toggled') ? 'closed' : 'opened')
+      });
+
+      $(document).ready(() => {
+        const sidebarState = localStorage.getItem('sidebar');
+        if (sidebarState === 'closed') {
+          $('#accordionSidebar').addClass('toggled');
+        }
+      });
+
+      const itemSearchTemplate = (item) => {
+        const url = "{% url 'orders_product_details' 1 %}".replace('1', item.id);
+        return `
+          <div class="d-flex align-items-center item-search" style="cursor: pointer;" data-url="${url}">
+            <img src="${item.small_img}" alt="" class="shopping-cart-img rounded-circle">
+            <p class="mb-0 ml-3">${item.name}</p>
+          </div>
+        `;
+      }
+
+      $('#autocomplete').autoComplete({
+        resolverSettings: {
+          url: "{% url 'products_search' %}",
+        },
+        events: {
+          searchPost: (result) => {
+            return result.data.map(o => ({ value: o.id, text: o.name, data: o }));
+          }
+        },
+        formatResult: (item) => {
+          return {
+            id: item.data.id,
+            text: item.data.name,
+            html: itemSearchTemplate(item.data)
+          };
+        }
+      });
+
+      $(document).on('click', '.item-search', (element) => {
+        window.location.href = $(element.currentTarget).data('url');
+      })
+    </script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

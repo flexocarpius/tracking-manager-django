@@ -1,0 +1,21 @@
+{% extends 'shared/index.html' %}
+{% block title %}Product{% endblock %}
+{% block content %}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Product</h1>
+    </div>
+    <div class="row">
+        {% for p in products %}
+            <div class="col-lg-4 col-sm-6">
+                <div class="card shadow mb-4">
+                    <img class="card-img-top" src="https://via.placeholder.com/150" alt="Card image cap">
+                    <div class="card-body">
+                        <h3>{{ p.name }}</h3>
+                        <p>{{ p.description }}</p>
+                        <p>$ {{ p.price }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

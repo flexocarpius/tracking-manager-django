@@ -1,0 +1,30 @@
+{% extends 'shared/index.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-lg-6 col-md-8 col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <h2>Log in</h2>
+                    <form action="{% url 'account_login' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                          <label for="username">User name</label>
+                          <input type="text" class="form-control" id="username" name="username" placeholder="Your username">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password" name="password">
+                        </div>
+                        <input type="submit" value="Login" class="btn btn-info">
+                    </form>
+                    <a href="">Register</a>
+                    <a href="">Forgot password</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-4 col-sm-12">
+
+        </div>
+    </div>
+{% endblock %}

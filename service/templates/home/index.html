@@ -1,0 +1,82 @@
+{% extends 'shared/index.html' %}
+{% load static %}
+{% block title %}Products{% endblock %}
+{% block content %}
+    <style>
+        .img-container {
+            height: 200px;
+            max-height: 200px;
+        }
+
+        .img {
+            object-fit: contain; /* Do not scale the image */
+            object-position: center; /* Center the image within the element */
+            width: 100%;
+            height: 200px;
+        }
+
+        .grid-item {
+            width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .text-truncate {
+            flex: 1;
+            min-width: 0;
+        }
+
+        @media (min-width: 576px) { 
+            .grid-item {
+                width: 100%;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .grid-item {
+                width: 50%;
+            }
+        }
+
+        @media (min-width: 992px) { 
+            .grid-item {
+                width: 33%;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .grid-item {
+                width: 25%;
+            }
+        }
+    </style>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Products</h1>
+    </div>
+    <div class="grid">
+        {% for p in products %}
+            <div class="grid-item">
+                <div class="card shadow m-2">
+                    <div class="img-container">
+                        <img class="card-img-top img" src="{{ p.small_img }}" alt="Card image cap">
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h3 class="text-truncate">{{ p.name }}</h3>
+                        <p>$ {{ p.price }}</p>
+                        <a href="{% url 'orders_product_details' p.id %}" class="btn btn-info">View</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'vendor/masonry/masonry.min.js' %}"></script>
+    <script>
+        $('.grid').masonry({
+            itemSelector: '.grid-item',
+            columnWidth: '.grid-item',
+            percentPosition: true,
+        });
+    </script>
+{% endblock %}

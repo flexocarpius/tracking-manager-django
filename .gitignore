@@ -1,0 +1,7 @@
+**/__pycache__/
+**/__pycache__/*
+/exampleservice/__pycache__
+/service/__pycache__
+/service/controllers/__pycache__
+/service/controllers/orders/__pycache__
+/service/controllers/products/__pycache__

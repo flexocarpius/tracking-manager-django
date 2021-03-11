@@ -1,0 +1,87 @@
+{% extends 'shared/index.html' %}
+{% block title %}Place order{% endblock %}
+{% block content %}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Place order</h1>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <h5>Please review the next information before placing the order.</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="form-group m-4">
+                    <label for="shipping_address">Shipping address</label>
+                    <textarea disabled class="form-control" id="shipping_address" name="shipping_address" placeholder="Address st. 1200">{{ order.shipping_address }}</textarea>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    {% for p in products %}
+                    <div class="d-flex mb-4">
+                        <img src="{{ p.small_img }}" alt="" class="shopping-cart-img">
+                        <div class="d-flex flex-column ml-4">
+                            <h3>{{ p.name }}</h3>
+                            <p>{{ p.to_buy }} x ${{ p.price }}</p>
+                        </div>
+                        <div class="flex-grow-1"></div>
+                        <h4>${{ p.subtotal }}</h4>
+                    </div>
+                    {% endfor %}
+                    <hr>
+                    <div class="d-flex justify-content-end">
+                        <h3>Total: ${{ total|floatformat:2 }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex flex-column align-items-center justify-content-center mb-4">
+        <div class="card bg-success text-white shadow py-3 px-3 d-flex flex-column align-items-center">
+            <h4>Payment</h4>
+            <div id="paypal-button-container"></div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script src="https://www.paypal.com/sdk/js?client-id=AaxEQsFlC-UPhukx6A3QBUrEmTCMT_OStCz4F5hX-wNV6n1ebfKHhXZDeDH-x66FKRcvqp5XDHjiVyDV"></script>
+<script>
+    const setOrderPlaced = async (data) => {
+        let csrftoken = getCookie('csrftoken');
+        const response = await fetch("{% url 'orders_set_placed' %}", {
+            method: 'POST',
+            mode: 'cors',
+            body: JSON.stringify(data),
+            credentials: 'same-origin',
+            headers: { "X-CSRFToken": csrftoken },
+        });
+        const json = await response.json();
+        if (json.message === 'ok') {
+            window.location.href = "{% url 'orders_result' %}";
+        }
+        else {
+            toastr.warning(json.message)
+        }
+    }
+
+    paypal.Buttons({
+        createOrder: function(data, actions) {
+            // This function sets up the details of the transaction, including the amount and line item details.
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '{{ total|floatformat:2 }}'
+                    }
+                }]
+            });
+        },
+        onApprove: function(data, actions) {
+            // This function captures the funds from the transaction.
+            return actions.order.capture().then(function(details) {
+                // This function shows a transaction success message to your buyer.
+                setOrderPlaced(details);
+            });
+        }
+    }).render('#paypal-button-container');
+  </script>
+{% endblock %}

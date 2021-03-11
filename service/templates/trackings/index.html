@@ -1,0 +1,99 @@
+{% extends 'shared/index.html' %}
+{% load static %}
+{% block title %}Trackings{% endblock %}
+{% block content %}
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Trackings</h1>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">List</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table responsive nowrap" id="table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="min-phone-l">Code</th>
+                                <th scope="col" class="min-tablet-l">Product</th>
+                                <th scope="col" class="min-tablet-l">Quantity</th>
+                                <th scope="col" class="min-phone-l">State</th>
+                                <th class="min-phone-l min-tablet-l min-desktop-l">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in trackings %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'trackings_details' t.id %}">{{ t.name }}</a>
+                                    </td>
+                                    <td>{{ t.product.name }}</td>
+                                    <td>{{ t.quantity }}</td>
+                                    <td>
+                                        {% if t.state == 'Waiting' %}
+                                        <h4><span class="badge badge-primary">{{ t.state }}</span></h4>
+                                        {% elif t.state == 'Placed' %}
+                                        <h4><span class="badge badge-info">{{ t.state }}</span></h4>
+                                        {% elif t.state == 'Creating' %}
+                                        <h4><span class="badge badge-warning">{{ t.state }}</span></h4>
+                                        {% elif t.state == 'Shipped' %}
+                                        <h4><span class="badge badge-success">{{ t.state }}</span></h4>
+                                        {% elif t.state == 'Delayed' %}
+                                        <h4><span class="badge badge-warning">{{ t.state }}</span></h4>
+                                        {% elif t.state == 'Cancelled' %}
+                                        <h4><span class="badge badge-danger">{{ t.state }}</span></h4>
+                                        {% else %}
+                                        <h4><span class="badge badge-secondary">{{ t.state }}</span></h4>
+                                        {% endif %}
+                                    </td>
+                                    <td class="tracking-actions">
+                                        {% for action in t.actions %}
+                                            {% if action == 'Ship' %}
+                                                <button class="btn btn-success" data-toggle="tooltip" title="{{ action }}" data-action="{{ action }}" data-id="{{ t.id }}"><i class="fa fa-truck"></i></button>
+                                            {% elif action == 'Cancel' %}
+                                                <button class="btn btn-danger" data-toggle="tooltip" title="{{ action }}" data-action="{{ action }}" data-id="{{ t.id }}"><i class="fa fa-times"></i></button>
+                                            {% elif action == 'Delay' %}
+                                                <button class="btn btn-warning" data-toggle="tooltip" title="{{ action }}" data-action="{{ action }}" data-id="{{ t.id }}"><i class="fa fa-clock"></i></button>
+                                            {% elif action == 'Deliver' %}
+                                                <button class="btn btn-success" data-toggle="tooltip" title="{{ action }}" data-action="{{ action }}" data-id="{{ t.id }}"><i class="fa fa-box"></i></button>
+                                            {% elif action == 'Send' %}
+                                                <button class="btn btn-info" data-toggle="tooltip" title="{{ action }}" data-action="{{ action }}" data-id="{{ t.id }}"><i class="fa fa-truck"></i></button>
+                                            {% elif action == 'Refund' %}
+                                                <button class="btn btn-primary" data-toggle="tooltip" title="{{ action }}" data-action="{{ action }}" data-id="{{ t.id }}"><i class="fa fa-money-bill-wave"></i></button>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script>
+    $(document).on('click', '.tracking-actions button', async (element) => {
+        const data = $(element.currentTarget).data();
+        const response = await postJson("{% url 'trackings_process' %}", { id: data.id, action: data.action });
+        window.location.href = "{% url 'trackings_index' %}"
+    });
+
+    $(document).ready(() => {
+        $('#table').DataTable({
+            lengthChange: false,
+            info: false,
+            responsive: {
+                
+            },
+        });
+    });
+</script>
+{% endblock %}

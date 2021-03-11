@@ -1,0 +1,152 @@
+{% extends 'shared/index.html' %}
+{% block title %}Order details{% endblock %}
+{% block content %}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Order details for {{ order.code }}</h1>
+    </div>
+    <div class="row">
+        <div class="col-lg-8 col-sm-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Product list</h6>
+                </div>
+                <div class="card-body">
+                    {% for tracking in trackings %}
+                        <div class="d-flex flex-row align-items-center mb-4 flex-wrap">
+                            <img src="{{ tracking.product.small_img }}" alt="" class="shopping-cart-img">
+                            <div class="d-flex flex-column ml-2">
+                                <h4 class="mb-0">{{ tracking.product.name }}</h4>
+                                <p class="mb-0">{{ tracking.quantity }} x ${{ tracking.product.price }}</p>
+                                {% if request.session.role in 'Admin' or request.session.role in 'Operator' %}
+                                    <p class="mb-0"><a href="{% url 'trackings_details' tracking.id %}">{{ tracking.name }}</a></p>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1"></div>
+                            <h5 class="mb-0 mr-2">${{ tracking.subtotal }}</h5>
+                            <h5><span class="badge badge-info">{{ tracking.state }}</span></h5>
+                        </div>
+                    {% endfor %}
+                    <hr>
+                    <h4 class="text-right">Order total: ${{ order.total }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-sm-12">
+            {% if request.session.role in 'Admin' or request.session.role in 'Operator' %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Managing operations</h6>
+                </div>
+                <div class="card-body">
+                    <form action="{% url 'admin_order_process' %}" method="POST">
+                        {% csrf_token %}
+                        {% for action in order.actions %}
+                            {% if action == 'Force Cancel' %}
+                                <input type="submit" id="forceCancelSubmit" name="submit" value="{{ action }}" class="d-none">
+                                <input type="hidden" name="order_id" value="{{ order.id }}">
+                                <button type="button" class="btn btn-danger" data-id="{{ order.id }}" data-toggle="modal" data-target="#cancelModal"><i class="fa fa-times"></i>&nbsp;{{ action }}</button>
+                            {% elif action == 'Refund' %}
+                                <input type="submit" id="refundSubmit" name="submit" value="{{ action }}" class="d-none">
+                                <input type="hidden" name="order_id" value="{{ order.id }}">
+                                <button type="button" class="btn btn-warning" data-id="{{ order.id }}" data-toggle="modal" data-target="#refundModal"><i class="fa fa-money-bill-wave"></i>&nbsp;{{ action }}</button>
+                            {% elif action == 'Update Reference' %}
+                                <input type="submit" id="updateReferenceSubmit" name="submit" value="{{ action }}" class="d-none">
+                                <input type="hidden" name="order_id" value="{{ order.id }}">
+                                <button type="button" class="btn btn-info" data-id="{{ order.id }}" data-toggle="modal" data-target="#updateReferenceModal"><i class="fa fa-qrcode"></i>&nbsp;{{ action }}</button>
+                            {% endif %}
+                        {% endfor %}
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Information</h6>
+                </div>
+                <div class="card-body">
+                    <h6>Current status: <span class="badge badge-success">{{ order.state }}</span></h6>
+                    <p>Shipping to: {{ order.shipping_address }}</p>
+                    <p>Payment reference: {{ order.payment_reference }} {% if payment_valid %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-exclamation-circle text-danger"></i>{% endif %}</p>
+                    <h5>Order total: ${{ order.total }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel" aria-hidden="true">
+        <input type="hidden" id="cancelModalId">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Are you sure?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">This is irreversible. If payment has been made, it will be refunded.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
+                    <button id="cancelOrderButton" class="btn btn-danger"><i class="fa fa-trash"></i>&nbsp;Confirm cancellation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="refundModal" tabindex="-1" role="dialog" aria-labelledby="refundModalLabel" aria-hidden="true">
+        <input type="hidden" id="refundModalId">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirm refund?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Any shipped items will be cancelled.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
+                    <button id="refundButton" class="btn btn-warning"><i class="fa fa-money-bill-wave"></i>&nbsp;Confirm refund</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="updateReferenceModal" tabindex="-1" role="dialog" aria-labelledby="updateReferenceModal" aria-hidden="true">
+        <input type="hidden" id="refundModalId">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirm update?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">The reference will be search using PayPal services.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
+                    <button id="confirmReferenceUpdate" class="btn btn-warning"><i class="fa fa-qrcode"></i>&nbsp;Confirm Updating</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script>
+    $('[data-target="#cancelModal"]').on('click', (element) => {
+        $('#cancelModalId').val($(element.currentTarget).data('id'));
+    });
+
+    $('[data-target="#refundModal"]').on('click', (element) => {
+        $('#refundModalId').val($(element.currentTarget).data('id'));
+    });
+
+    $('#cancelOrderButton').on('click', async () => {
+        $('#forceCancelSubmit').click();
+    });
+
+    $('#refundButton').on('click', async () => {
+        $('#refundSubmit').click();
+    });
+
+    $('#confirmReferenceUpdate').on('click', async () => {
+        $('#updateReferenceSubmit').click();
+    });
+</script>
+{% endblock %}

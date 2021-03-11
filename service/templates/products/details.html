@@ -1,0 +1,123 @@
+{% extends 'shared/index.html' %}
+{% load static %}
+{% block title %}{{ product.name }} - Product details{% endblock %}
+{% block content %}
+    <div class="row mb-4 d-flex align-items-center">
+        <a href="{% url 'products_index' %}">
+            <span class="fa fas fa-arrow-left fa-lg mr-2"></span>
+        </a>
+        <h1 class="h3 mb-0 text-gray-800">{{ product.name }} - Product details</h1>
+        <div class="flex-grow-1"></div>
+        <div>
+            <a href="{% url 'products_edit' product.id %}" class="btn btn-primary btn-icon-split ml-2">
+                <span class="icon text-white-50">
+                    <i class="fas fa-edit"></i>
+                </span>
+                <span class="text">Edit</span>
+            </a>
+            <a href="{% url 'products_gallery' product.id %}" class="btn btn-warning btn-icon-split ml-2">
+                <span class="icon text-white-50">
+                    <i class="fas fa-image"></i>
+                </span>
+                <span class="text">Gallery</span>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6 col-lg-4 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Normal price</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">$ {{ product.price }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-4 mb-4">
+            <div class="card border-left-secondary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total sell</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">$ {{ total }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-money-bill-wave fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-4 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Quantity</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tag fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-4 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Inventory</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ product.quantity }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-box fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Quantity by tracking</h6>
+                </div>
+                <div class="card-body">
+                    {% if count %}
+                    <div style="width:100%;">
+                        <canvas id="canvas"></canvas>
+                    </div>
+                    {% else %}
+                    <div class="d-flex justify-content-center align-items-center">
+                        <h1>There is no data to display.</h1>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'js/product.details.js' %}"></script>
+    <script>
+        $(document).ready(() => {
+            const id = parseInt("{{ product.id }}")
+            initChart(id);
+        });
+    </script>
+{% endblock %}

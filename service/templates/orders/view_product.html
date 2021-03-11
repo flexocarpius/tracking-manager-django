@@ -1,0 +1,74 @@
+{% extends 'shared/index.html' %}
+{% load static %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+    <style>
+        .fotorama__wrap {
+            margin: 0 auto;
+        }
+    </style>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ product.name }}</h1>
+    </div>
+    <div class="row">
+        <div class="col-lg-8 col-sm-12">
+            <div class="card shadow mb-3">
+                <div class="card-body">
+                    <div class="fotorama">
+                        {% for img in product_imgs %}
+                            <img src="{{ img.img_url }}" alt="">
+                        {% empty %}
+                            <img src="{{ product.large_img }}" alt="">
+                        {% endfor %}
+                    </div>
+                    <hr>
+                    <h4>Description</h4>
+                    <p>{{ product.description|linebreaks }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-sm-12">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <div class="d-flex flex-column">
+                        <h5>Buy now for</h5>
+                        <h3>$ {{ product.price }}</h3>
+                        <h5>each</h5>
+                        <div class="mb-4"></div>
+                        <p>{{ buy_count }} sold</p>
+                        <input id="quantity" type="number" value="1" min="1" max="{{ product.quantity }}" step="1"/>
+                        <div class="mb-4"></div>
+                        <p>{{ product.quantity }} available</p>
+                        <button onclick="addProduct('{{ product.id }}')" class="btn btn-info align-self-end">
+                            Add to cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'vendor/bootstrap-input-spinner/bootstrap-input-spinner.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.4/fotorama.js"></script>
+<script>
+    $("input[type='number']").inputSpinner();
+
+    const addProduct = async (id) => {
+        let csrftoken = getCookie('csrftoken');
+        const response = await postJson("{% url 'orders_add_product' %}", {
+            productId: id,
+            quantity: $('#quantity').val().toString()
+        });
+        if (response.message === 'ok') {
+            window.location.reload();
+        }
+        else if (response.message === 'login') {
+            window.location.href = "{% url 'account_login' %}"
+        }
+        else {
+            toastr.warning(response.message)
+        }
+    }
+  </script>
+{% endblock %}

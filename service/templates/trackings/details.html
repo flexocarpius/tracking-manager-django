@@ -1,0 +1,152 @@
+{% extends 'shared/index.html' %}
+{% load static %}
+{% block title %}Tracking details{% endblock %}
+{% block content %}
+<link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css" />
+<link href="{% static 'css/progress-step.css' %}" rel="stylesheet" type="text/css" />
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Tracking: {{ tracking.name }}</h1>
+</div>
+<div class="row">
+    <div class="col-sm-12 col-md-6 col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Available actions</h6>
+            </div>
+            <div class="card-body d-flex flex-column">
+                {% for action in tracking.actions %}
+                    {% if action == 'Ship' %}
+                        <button class="btn btn-success mb-3" data-action="{{ action }}" data-id="{{ t.id }}"><i class="fa fa-truck"></i>&nbsp;{{ action }}</button>
+                    {% elif action == 'Cancel' %}
+                        <button class="btn btn-danger mb-3" data-action="{{ action }}" data-id="{{ t.id }}"><i class="fa fa-times"></i>&nbsp;{{ action }}</button>
+                    {% elif action == 'Delay' %}
+                        <button class="btn btn-warning mb-3" data-action="{{ action }}" data-id="{{ t.id }}"><i class="fa fa-clock"></i>&nbsp;{{ action }}</button>
+                    {% elif action == 'Deliver' %}
+                        <button class="btn btn-success mb-3" data-action="{{ action }}" data-id="{{ t.id }}"><i class="fa fa-box"></i>&nbsp;{{ action }}</button>
+                    {% elif action == 'Send' %}
+                        <button class="btn btn-info mb-3" data-action="{{ action }}" data-id="{{ t.id }}"><i class="fa fa-truck"></i>&nbsp;{{ action }}</button>
+                    {% elif action == 'Refund' %}
+                        <button class="btn btn-primary mb-3" data-action="{{ action }}" data-id="{{ t.id }}"><i class="fa fa-money-bill-wave"></i>&nbsp;{{ action }}</button>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12 col-md-6 col-lg-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Details</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-6 col-lg-4">
+                        <ul class="progress-step mt-3">
+                            <li class="active info" data-state="Placed">
+                                <div class="icon">
+                                    <i class="fa fa-check"></i>
+                                </div>
+                                <div class="content">
+                                    <p class="title">Placed</p>
+                                    <p class="subtitle text-gray-500">-</p>
+                                </div>
+                            </li>
+                            <li class="info" data-state="Shipped">
+                                <div class="icon">
+                                    <i class="fa fa-truck"></i>
+                                </div>
+                                <div class="content">
+                                    <p class="title">Shipped</p>
+                                    <p class="subtitle text-gray-500">-</p>
+                                </div>
+                            </li>
+                            {% if tracking.state == 'Delayed' %}
+                            <li class="warning" data-state="Delayed">
+                                <div class="icon">
+                                    <i class="fa fa-clock"></i>
+                                </div>
+                                <div class="content">
+                                    <p class="title">Delayed</p>
+                                    <p class="subtitle text-gray-500">-</p>
+                                </div>
+                            </li>
+                            {% endif %}
+                            <li class="info" data-state="Last">
+                                <div class="icon">
+                                    <i class="fa fa-box"></i>
+                                </div>
+                                <div class="content">
+                                    <p class="title">Delivered</p>
+                                    <p class="subtitle text-gray-500">-</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-12 col-md-6 col-lg-8">
+                        <h5>Current status</h5>
+                        {% if tracking.state == 'Waiting' %}
+                        <h4><span class="badge badge-primary">{{ tracking.state }}</span></h4>
+                        {% elif tracking.state == 'Placed' %}
+                        <h4><span class="badge badge-info">{{ tracking.state }}</span></h4>
+                        {% elif tracking.state == 'Creating' %}
+                        <h4><span class="badge badge-warning">{{ tracking.state }}</span></h4>
+                        {% elif tracking.state == 'Shipped' %}
+                        <h4><span class="badge badge-success">{{ tracking.state }}</span></h4>
+                        {% elif tracking.state == 'Delayed' %}
+                        <h4><span class="badge badge-warning">{{ tracking.state }}</span></h4>
+                        {% elif tracking.state == 'Cancelled' %}
+                        <h4><span class="badge badge-danger">{{ tracking.state }}</span></h4>
+                        {% else %}
+                        <h4><span class="badge badge-secondary">{{ tracking.state }}</span></h4>
+                        {% endif %}
+                        <hr>
+                        <h5>Shipping date</h5>
+                        <p class="mb-2"><b>{{ tracking.shipped_date }}</b></p>
+                        <h5>Delivered date</h5>
+                        <p class="mb-2"><b>{{ tracking.delivered_date }}</b></p>
+                        <h5>Cancelled date</h5>
+                        <p class="mb-2"><b>{{ tracking.cancelled_date }}</b></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+    <script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
+    <script>
+        $(document).ready(() => {
+            const currentState = "{{ tracking.state }}";
+            if (currentState === 'Placed') {
+                $('[data-state="Placed"').addClass('active');
+                $('[data-state="Placed"').find('.subtitle').html("{{ tracking.placed_date }}");
+            }
+            if (currentState === 'Shipped') {
+                $('[data-state="Placed"').addClass('active');
+                $('[data-state="Shipped"').addClass('active');
+                $('[data-state="Placed"').find('.subtitle').html("{{ tracking.placed_date }}");
+                $('[data-state="Shipped"').find('.subtitle').html("{{ tracking.shipped_date }}");
+            }
+            if (currentState === 'Delayed') {
+                $('[data-state="Placed"').addClass('active');
+                $('[data-state="Shipped"').addClass('active');
+                $('[data-state="Delayed"').addClass('active');
+                $('[data-state="Placed"').find('.subtitle').html("{{ tracking.placed_date }}");
+                $('[data-state="Shipped"').find('.subtitle').html("{{ tracking.shipped_date }}");
+                $('[data-state="Delayed"').find('.subtitle').html("{{ tracking.delayed_date }}");
+            }
+            if (currentState === 'Cancelled') {
+                $('[data-state="Placed"').addClass('active');
+                $('[data-state="Shipped"').addClass('active');
+                $('[data-state="Delayed"').addClass('active');
+                $('[data-state="Placed"').find('.subtitle').html("{{ tracking.placed_date }}");
+                $('[data-state="Shipped"').find('.subtitle').html("{{ tracking.shipped_date }}");
+                $('[data-state="Delayed"').find('.subtitle').html("{{ tracking.delayed_date }}");
+                $('[data-state="Last"').addClass('active').addClass('danger');
+                $('[data-state="Last"').find('.title').html('Cancelled');
+                $('[data-state="Last"').find('.subtitle').html("{{ tracking.cancelled_date }}");
+                $('[data-state="Last"').find('.icon i').removeClass('fa-box').addClass('fa-times');
+            }
+        });
+    </script>
+{% endblock %}

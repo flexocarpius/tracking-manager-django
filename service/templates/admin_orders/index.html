@@ -1,0 +1,141 @@
+{% extends 'shared/index.html' %}
+{% load static %}
+{% block title %}All Orders{% endblock %}
+{% block content %}
+    <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">All Orders</h1>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">List</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table" id="table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="min-phone-l">Code</th>
+                                <th scope="col" class="min-tablet-l">Items</th>
+                                <th scope="col" class="min-tablet-l">Shipping code</th>
+                                <th scope="col" class="min-phone-l">State</th>
+                                <th class="min-phone-l"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for o in orders %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'orders_details' o.id %}">{{ o.code }}</a></td>
+                                    <td>{{ o.trackings|length }}</td>
+                                    <td>{{ o.shipping_code }}</td>
+                                    <td>
+                                        {% if o.state == 'Creating' %}
+                                        <h5><span class="badge badge-primary"><i class="fa fa-clock"></i>&nbsp;{{ o.state }}</span></h5>
+                                        {% elif o.state == 'Paid' %}
+                                        <h5><span class="badge badge-success"><i class="fa fa-money-bill-wave"></i>&nbsp;{{ o.state }}</span></h5>
+                                        {% elif o.state == 'Cancelled' %}
+                                        <h5><span class="badge badge-danger"><i class="fa fa-times"></i>&nbsp;{{ o.state }}</span></h5>
+                                        {% elif o.state == 'Refunded' %}
+                                        <h5><span class="badge badge-warning"><i class="fa fa-money-bill-wave"></i>&nbsp;{{ o.state }}</span></h5>
+                                        {% else %}
+                                        <h5><span class="badge badge-secondary">{{ o.state }}</span></h5>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% for action in o.actions %}
+                                            {% if action == 'Force Cancel' %}
+                                            <button class="btn btn-danger" data-id="{{ o.id }}" data-toggle="modal" data-target="#cancelModal"><i class="fa fa-times"></i>&nbsp;{{ action }}</button>
+                                            {% elif action == 'Refund' %}
+                                            <button class="btn btn-warning" data-id="{{ o.id }}" data-toggle="modal" data-target="#refundModal"><i class="fa fa-money-bill-wave"></i>&nbsp;{{ action }}</button>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel" aria-hidden="true">
+        <input type="hidden" id="cancelModalId">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Are you sure?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">This is irreversible. If payment has been made, it will be refunded.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
+                    <button id="cancelOrderButton" class="btn btn-danger"><i class="fa fa-trash"></i>&nbsp;Confirm cancellation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="refundModal" tabindex="-1" role="dialog" aria-labelledby="refundModalLabel" aria-hidden="true">
+        <input type="hidden" id="refundModalId">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirm refund?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Any shipped items will be cancelled.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Close</button>
+                    <button id="refundButton" class="btn btn-warning"><i class="fa fa-money-bill-wave"></i>&nbsp;Confirm refund</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+<script>
+    $('[data-target="#cancelModal"]').on('click', (element) => {
+        $('#cancelModalId').val($(element.currentTarget).data('id'));
+    });
+
+    $('[data-target="#refundModal"]').on('click', (element) => {
+        $('#refundModalId').val($(element.currentTarget).data('id'));
+    });
+
+    $('#cancelOrderButton').on('click', async () => {
+        const response = await postJson("{% url 'orders_cancel' %}", { id: $('#cancelModalId').val() });
+        if (response.message !== 'ok') {
+            toastr.danger(response.message);
+        }
+        else {
+            window.location.href = "{% url 'orders_index' %}";
+        }
+    });
+
+    $('#refundButton').on('click', async () => {
+        const response = await postJson("{% url 'orders_request_refund' %}", { id: $('#refundModalId').val() });
+        if (response.message !== 'ok') {
+            toastr.danger(response.message);
+        }
+        else {
+            window.location.href = "{% url 'orders_index' %}";
+        }
+    });
+
+    $(document).ready(() => {
+        $('#table').DataTable({
+            lengthChange: false,
+            info: false,
+            responsive: true,
+        });
+    });
+</script>
+{% endblock %}

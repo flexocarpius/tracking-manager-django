@@ -1,0 +1,86 @@
+{% extends 'shared/index.html' %}
+{% load static %}
+{% block title %}Users{% endblock %}
+{% block content %}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Users</h1>
+        <a href="{% url 'users_register' %}" class="btn btn-primary btn-icon-split">
+            <span class="icon text-white-50">
+                <i class="fas fa-plus"></i>
+            </span>
+            <span class="text">Create new user</span>
+        </a>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">List</h6>
+                </div>
+                <div class="card-body">
+                    <table id="table" class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="min-phone-l">Username</th>
+                                <th scope="col" class="min-tablet-l">Email</th>
+                                <th scope="col" class="min-tablet-l">Role</th>
+                                <th scope="col" class="min-phone-l">State</th>
+                                <th scope="col" class="min-phone-l"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in roles %}
+                                <tr>
+                                    <td>{{ r.user.username }}</td>
+                                    <td>{{ r.user.email }}</td>
+                                    <td>
+                                        {% if r.role == 'Admin' %}
+                                        <h5><span class="badge badge-warning"><span class="fa fa-user"></span>&nbsp;{{ r.role }}</span></h5>
+                                        {% elif r.role == 'Customer' %}
+                                        <h5><span class="badge badge-success"><span class="fa fa-user"></span>&nbsp;{{ r.role }}</span></h5>
+                                        {% elif r.role == 'Operator' %}
+                                        <h5><span class="badge badge-info"><span class="fa fa-user"></span>&nbsp;{{ r.role }}</span></h5>
+                                        {% else %}
+                                        <h5><span class="badge"><span class="fa fa-user"></span>&nbsp;{{ r.role }}</span></h5>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if r.state == 'Active' %}
+                                        <h5><span class="badge badge-success"><span class="fa fa-check"></span>&nbsp;{{ r.state }}</span></h5>
+                                        {% elif r.state == 'Inactive' %}
+                                        <h5><span class="badge badge-dark"><span class="fa fa-times"></span>&nbsp;{{ r.state }}</span></h5>
+                                        {% else %}
+                                        <h5><span class="badge"><span class="fa fa-info"></span>&nbsp;{{ r.state }}</span></h5>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'users_register' r.user.id %}" class="btn btn-success">
+                                            <span class="fa fa-edit"></span>
+                                        </a>
+                                        <div class="btn btn-danger">
+                                            <span class="fa fa-trash"></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+    <script>
+        $(document).ready(() => {
+            $('#table').DataTable({
+                lengthChange: false,
+                info: false,
+                responsive: true,
+            });
+        });
+    </script>
+{% endblock %}

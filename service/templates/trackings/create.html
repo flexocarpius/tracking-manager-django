@@ -1,0 +1,27 @@
+{% extends 'shared/index.html' %}
+{% block title %}Create new tracking{% endblock %}
+{% block content %}
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Create a new tracking</h1>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <form action="{% url 'products_create' %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                  <label for="name">Product name</label>
+                  <input type="text" class="form-control" id="name" name="name" placeholder="Product">
+                </div>
+                <div class="form-group">
+                    <label for="description">Product description</label>
+                    <input type="text" class="form-control" id="description" name="description" placeholder="Description">
+                </div>
+                <div class="form-group">
+                    <label for="price">Product price</label>
+                    <input type="currency" class="form-control" id="price" name="price" placeholder="9.99">
+                </div>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,95 @@
+.progress-step {
+  list-style: none;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  justify-content: start;
+  align-items: flex-start;
+}
+
+.progress-step li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
+.progress-step li.info:before {
+  width: 5px;
+  height: 150px;
+  background-color: var(--blue);
+  z-index: 1;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  content: "";
+}
+
+.progress-step li.info:first-child {
+  margin-top: 0px;
+}
+
+.progress-step li.info:last-child {
+  margin-bottom: 0px;
+}
+
+.progress-step li.info:first-child::before,
+.progress-step li.info:last-child::before {
+  height: 0px;
+}
+
+.progress-step * .content {
+  position: absolute;
+  left: 0px;
+  color: black;
+  font-size: 12px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.progress-step * .content p {
+  margin: 0;
+}
+
+.progress-step li {
+  width: 100%;
+}
+
+.progress-step li .icon {
+  background-color: white;
+  color: var(--blue);
+  border: var(--blue) solid 4px;
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  max-width: 40px;
+  max-height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-step li.info.active .icon {
+  background-color: var(--blue);
+  color: white;
+  border: var(--blue) solid 4px;
+}
+
+.progress-step li.warning.active .icon {
+  background-color: var(--orange);
+  color: white;
+  border: var(--orange) solid 4px;
+}
+
+.progress-step li.danger.active .icon {
+  background-color: var(--red);
+  color: white;
+  border: var(--red) solid 4px;
+}

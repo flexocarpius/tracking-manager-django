@@ -1,0 +1,123 @@
+{% extends 'shared/index.html' %}
+{% block title %}{{ product.name }} gallery{% endblock %}
+{% block content %}
+    <style>
+        .gallery-img {
+            object-fit: contain; /* Do not scale the image */
+            object-position: center; /* Center the image within the element */
+            max-width: 250px;
+            max-height: 250px;
+            height: 250px;
+        }
+
+        .img-container {
+            position: relative;
+            display: flex;
+            max-width: 250px;
+            max-height: 250px;
+            height: 250px;
+        }
+
+        .img-button-container {
+            border-top-left-radius: 0.35rem !important;
+            border-top-right-radius: 0.35rem !important;
+            background-color: rgba(0, 0, 0, 0.3);
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            width: 250px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            padding: 8px;
+        }
+    </style>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ product.name }} gallery</h1>
+        <a data-toggle="modal" data-target="#imageModal" class="btn btn-primary btn-icon-split">
+            <span class="icon text-white-50">
+                <i class="fas fa-plus"></i>
+            </span>
+            <span class="text">Add new image</span>
+        </a>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="image-container d-flex flex-wrap">
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="exampleModalLabel" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add image</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="url">Url</label>
+                        <input type="text" class="form-control" id="url" name="url" placeholder="Image url">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <button id="addImageButton" class="btn btn-primary">Add</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script>
+    const imageTemplate = (data) => `
+        <div class="img-container mx-2 my-2" data-id="${data.id}">
+            <div class="img-button-container">
+                <button class="btn btn-warning btn-circle btn-outline img-button-remove"><i class="fa fa-trash"></i></button>
+            </div>
+            <img src="${data.img_url}" class="rounded gallery-img position-absolute" alt="">
+        </div>
+    `;
+
+    const addProductImage = async (data) => {
+        const response = await postJson("{% url 'products_add_img' product.id %}", data);
+        return response;
+    }
+
+    const removeProductImage = async (id) => {
+        const response = await postJson("{% url 'products_remove_img' %}", { id });
+        if (response.message === 'ok') {
+            $(`.img-container[data-id="${id}"`).remove();
+        }
+        return response;
+    }
+
+    const loadImages = async () => {
+        const json = await getJson("{% url 'products_add_img' product.id %}");
+        for (const img of json.data) {
+            $('.image-container').append(imageTemplate(img));
+        }
+    }
+
+    $(document).ready(() => {
+        loadImages();
+        $('#addImageButton').on('click', async () => {
+            response = await addProductImage({
+                url: $('[name=url]').val()
+            });
+            if (response.message === 'ok') {
+                $('.image-container').append(imageTemplate(response.data));
+                $('[name=url]').val('')
+                $('#imageModal').modal('hide');
+            }
+        });
+
+        $(document).on('click', '.img-button-remove', async (element) => {
+            await removeProductImage($(element.currentTarget).closest('.img-container').data('id'));
+        });
+    });
+</script>
+{% endblock %}
